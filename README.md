@@ -36,3 +36,11 @@ En el archivo local.properties debemos indicar dónde está el SDK de Android de
 ~~~
 ANDROID_HOME=~/Android/Sdk
 ~~~
+
+En ~/.gitconfig podemos introducir nuestros datos para que se identifiquen con nuestros commits:
+
+~~~
+[user]
+	name = Code Monsters
+	email = info@codemonsters.es
+~~~
