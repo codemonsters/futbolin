@@ -29,3 +29,10 @@ Para actualizar el repositorio local con los cambios remotos:
 git pull
 ~~~
 
+## Notas:
+
+En el archivo local.properties debemos indicar dónde está el SDK de Android de nuestro ordenador. Ej:
+
+~~~
+ANDROID_HOME=~/Android/Sdk:
+~~~
