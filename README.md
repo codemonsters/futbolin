@@ -23,3 +23,9 @@ Para subir los cambios al repositorio remoto:
 ~~~
 git push -u origin master
 ~~~
+
+Para actualizar el repositorio local con los cambios remotos:
+~~~
+git pull
+~~~
+
