@@ -3,6 +3,7 @@ package es.codemonsters.futbolin.mainmenu;
 import com.badlogic.gdx.Screen;
 
 import es.codemonsters.futbolin.MyGdxGame;
+import es.codemonsters.futbolin.gamesetup.GameSetupScreen;
 
 public class MainMenuScreen implements Screen {
 	
@@ -10,6 +11,8 @@ public class MainMenuScreen implements Screen {
 	
 	public MainMenuScreen(final MyGdxGame game) {
         this.game = game;
+        this.game.setScreen(new GameSetupScreen(this.game));
+        this.dispose();
     }
 	
 	@Override
