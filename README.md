@@ -34,7 +34,7 @@ git pull
 En el archivo local.properties debemos indicar dónde está el SDK de Android de nuestro ordenador. Ej:
 
 ~~~
-ANDROID_HOME=~/Android/Sdk
+sdk.dir=~/Android/Sdk
 ~~~
 
 En ~/.gitconfig podemos introducir nuestros datos para que se identifiquen con nuestros commits:
