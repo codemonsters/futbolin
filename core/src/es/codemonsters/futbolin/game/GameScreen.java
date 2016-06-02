@@ -26,32 +26,33 @@ public class GameScreen implements Screen {
 	private MyGdxGame game;
 	private World world;
 	private Body body;
+	private Texture textureFondo;
 	private Texture textureBola;
 	private Sprite spriteBola;
 	private Fixture fixture;
-	
-	private static final float WORLD_WIDTH = 160;
-	private static final float WORLD_HEIGHT = 90;
+
 	
 	public GameScreen(final MyGdxGame game) {
         this.game = game; 
         
         camera = new OrthographicCamera(); 
-        camera.position.set(camera.viewportWidth/2,camera.viewportHeight/2,0);
         
         viewport = new FillViewport(1024, 576, camera);
         //viewport.setUnitsPerPixel(6.4f);
         viewport.apply();
+        camera.position.set(camera.viewportWidth/2,camera.viewportHeight/2,0);
         
-        world = new World(new Vector2(0, -0.5f), true);
-        BodyDef bodyDef = new BodyDef();
-        bodyDef.type = BodyDef.BodyType.DynamicBody;   
+        world = new World(new Vector2(0, -0f), true);
+        
+        textureFondo = new Texture(Gdx.files.internal("fondo_160x90.jpg"));
         
         textureBola = new Texture(Gdx.files.internal("ball_50x50.png"));
         spriteBola = new Sprite(textureBola);
         
-        bodyDef.position.set((WORLD_WIDTH-textureBola.getWidth())/2, (WORLD_HEIGHT-textureBola.getHeight())/2);
-        
+        BodyDef bodyDef = new BodyDef();
+        bodyDef.type = BodyDef.BodyType.DynamicBody;   
+        //bodyDef.position.set((game.WORLD_WIDTH-textureBola.getWidth())/2, (game.WORLD_HEIGHT-textureBola.getHeight())/2);
+        bodyDef.position.set(0, 0);
         body = world.createBody(bodyDef);
         
         CircleShape shape = new CircleShape();
@@ -78,12 +79,13 @@ public class GameScreen implements Screen {
 	public void render(float delta) {
 		world.step(Gdx.graphics.getDeltaTime(), 6, 2);
 		camera.update();
-        spriteBola.setPosition(body.getPosition().x, body.getPosition().y);
+        spriteBola.setPosition(body.getPosition().x*game.PIXEL_TO_METROS - spriteBola.getWidth()/2, body.getPosition().y*game.PIXEL_TO_METROS - spriteBola.getHeight()/2);
 
         Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
         
         game.batch.setProjectionMatrix(camera.combined);
         game.batch.begin();
+        game.batch.draw(textureFondo, 0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
         game.batch.draw(spriteBola, spriteBola.getX(), spriteBola.getY());
         game.batch.end();
 		
