@@ -40,6 +40,11 @@ public class GameScreen implements Screen {
 	private Texture textureBola;
 	private Sprite spriteBola;
 	
+	private Body bodyBolaFija;
+	private Sprite spriteBolaFija;
+	
+	private Body bodyRectFijo;
+	
 	private Texture texturaMarcoHor, texturaMarcoVert;
 	private Body bodyMarcoSup;
 	private Body bodyMarcoInf;
@@ -56,7 +61,7 @@ public class GameScreen implements Screen {
         camera.position.set(camera.viewportWidth/2,camera.viewportHeight/2,0);  // Colocamos la camara en el medio del viewport (centro de la pantalla)
         
         //---- Mundo y elementos
-        world = new World(new Vector2(0, -98f), true);  // --> Vector2(fuerza del viento, fuerza gravedad)
+        world = new World(new Vector2(-1, -98f), true);  // --> Vector2(fuerza del viento, fuerza gravedad)
         
         //- Fondo
         texturaFondo = new Texture(Gdx.files.internal("fondo_160x90.jpg"));
@@ -65,39 +70,25 @@ public class GameScreen implements Screen {
         textureBola = new Texture(Gdx.files.internal("ball_50x50.png"));
         spriteBola = new Sprite(textureBola);
         
-        bodyBola = Utiles.crearCuerpo(world, BodyDef.BodyType.DynamicBody, game.WORLD_WIDTH/2, game.WORLD_HEIGHT/2);
+        bodyBola = Utiles.crearCuerpoCircular(world, BodyDef.BodyType.DynamicBody, game.WORLD_WIDTH/2, game.WORLD_HEIGHT/2, 10f, 1f, 0.5f);
         
-        CircleShape shapeBola = new CircleShape();  // Forma del cuerpo, en este caso un circulo
-        shapeBola.setRadius(textureBola.getWidth()/2); 
+        //Bola Fija
+        //bodyBolaFija = Utiles.crearCuerpoCircular(world, BodyDef.BodyType.StaticBody, game.WORLD_WIDTH/2, game.WORLD_HEIGHT/2-20, 10f, 1f, 0.5f);
         
-        FixtureDef fixtureBola = Utiles.crearFixture(shapeBola, 1f, 0.5f);  
-        bodyBola.createFixture(fixtureBola);
+        //Rect fijo
+        bodyRectFijo = Utiles.crearCuerpoRectangular(world, BodyDef.BodyType.StaticBody, game.WORLD_WIDTH/2, -10, game.WORLD_WIDTH/2, 10f, 1f, 0.5f);
         
-        shapeBola.dispose();
-        
+
         //- Tablero
-        texturaMarcoHor = Utiles.crearTextura((int)(160*game.METROS_TO_PIXEL), 25 , Color.GREEN);
-        texturaMarcoVert = Utiles.crearTextura(25, (int)(90*game.METROS_TO_PIXEL), Color.RED);
-        
-        PolygonShape shapeMarcoHor = new PolygonShape();
-        shapeMarcoHor.setAsBox(texturaMarcoHor.getWidth(), texturaMarcoHor.getHeight());
-        
-        PolygonShape shapeMarcoVert = new PolygonShape();
-        shapeMarcoVert.setAsBox(texturaMarcoVert.getWidth(), texturaMarcoVert.getHeight());
-        
-        FixtureDef fixtureMarcoHor = Utiles.crearFixture(shapeMarcoHor, 1000f, 0);
-        shapeMarcoHor.dispose();
-        
-        FixtureDef fixtureMarcoVert = Utiles.crearFixture(shapeMarcoVert, 1000f, 0);
-        shapeMarcoVert.dispose();
-        
-        bodyMarcoSup = Utiles.crearCuerpo(world, BodyDef.BodyType.StaticBody, 0, Gdx.graphics.getHeight()-texturaMarcoHor.getHeight());
-        //bodyMarcoSup.createFixture(fixtureMarcoHor);
-        bodyMarcoInf = Utiles.crearCuerpo(world, BodyDef.BodyType.StaticBody, 0, 0);
-        bodyMarcoInf.createFixture(fixtureMarcoHor);
-        
-        marcosArray.add(bodyMarcoSup);
+        texturaMarcoHor = Utiles.crearTextura((int)(160*game.METROS_TO_PIXEL)/2, (int)(4*game.METROS_TO_PIXEL) , Color.GREEN);
+        //texturaMarcoVert = Utiles.crearTextura(25, (int)(90*game.METROS_TO_PIXEL), Color.RED);
+ 
+        //bodyMarcoSup = Utiles.crearCuerpo(world, BodyDef.BodyType.StaticBody, 0, Gdx.graphics.getHeight()-texturaMarcoHor.getHeight());
+        bodyMarcoInf = Utiles.crearCuerpoRectangular(world, BodyDef.BodyType.StaticBody, 0, -40, game.WORLD_WIDTH, 10, 1000f, 100f);  
+
+        //marcosArray.add(bodyMarcoSup);
         marcosArray.add(bodyMarcoInf);
+
         
         //- Jugadores
         
