@@ -42,7 +42,19 @@ public class Utiles {
         return body;     
 	}
 	
-	public static Body crearCuerpoRectangular(World mundo, BodyType tipoCuerpo, float x, float y, float ancho, float alto, float densidad, float friccion){
+	/***
+	 * 
+	 * @param mundo
+	 * @param tipoCuerpo
+	 * @param x  Coordenada x del centro del cuerpo
+	 * @param y  Coordenada y del centro del cuerpo
+	 * @param ancho
+	 * @param alto
+	 * @param densidad
+	 * @param friccion
+	 * @return
+	 */
+	public static Body crearCuerpoRectangular(World mundo, BodyType tipoCuerpo, float x, float y, float ancho, float alto, float densidad, float friccion){  
 		BodyDef bodyDef = new BodyDef();  // Guarda informacion del cuerpo (tipo, densidad, grados de rotacion, velocidad...)
         bodyDef.type = tipoCuerpo;  // Tipo de cuerpo, el dinamico reacciona ante fuerzas, colisiones y otros eventos del mundo 
         bodyDef.position.set(new Vector2(x, y));  // En los cuerpos el origen de coordenadas es el centro

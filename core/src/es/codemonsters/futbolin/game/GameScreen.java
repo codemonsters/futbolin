@@ -37,19 +37,38 @@ public class GameScreen implements Screen {
 	private Texture texturaFondo;
 	
 	private Body bodyBola;
-	private Texture textureBola;
-	private Sprite spriteBola;
-	
-	private Body bodyBolaFija;
-	private Sprite spriteBolaFija;
-	
-	private Body bodyRectFijo;
+	private Texture texturaBola;
+	private Sprite spriteBola;	
 	
 	private Texture texturaMarcoHor, texturaMarcoVert;
 	private Body bodyMarcoSup;
 	private Body bodyMarcoInf;
 	private Array<Body> marcosArray = new Array<Body>();
 	
+	
+	public float[] posicionCuerpoToTextura(Body cuerpo) {
+		float[] posicionesTexturas = new float[2];
+		
+		if(cuerpo.getFixtureList().get(0).getShape() instanceof CircleShape){
+			posicionesTexturas[0] = cuerpo.getPosition().x - cuerpo.getFixtureList().get(0).getShape().getRadius();
+			posicionesTexturas[1] = cuerpo.getPosition().y - cuerpo.getFixtureList().get(0).getShape().getRadius();
+		}
+		
+		else if(cuerpo.getFixtureList().get(0).getShape() instanceof PolygonShape){
+			PolygonShape poligono = (PolygonShape) cuerpo.getFixtureList().get(0).getShape();
+
+			// SEGUIR AQUI!!!!!!!!!!!!!
+			posicionesTexturas[0] = cuerpo.getPosition().x - cuerpo.getFixtureList().get(0).getShape().getRadius();
+			posicionesTexturas[1] = cuerpo.getPosition().y - cuerpo.getFixtureList().get(0).getShape().getRadius();
+		}
+		
+		else{
+			
+		}
+		
+		
+		return posicionesTexturas;
+	}
 	
 	public GameScreen(final MyGdxGame game) {
         this.game = game; 
@@ -61,35 +80,21 @@ public class GameScreen implements Screen {
         camera.position.set(camera.viewportWidth/2,camera.viewportHeight/2,0);  // Colocamos la camara en el medio del viewport (centro de la pantalla)
         
         //---- Mundo y elementos
-        world = new World(new Vector2(-1, -98f), true);  // --> Vector2(fuerza del viento, fuerza gravedad)
+        world = new World(new Vector2(0, -98f), true);  // --> Vector2(fuerza del viento, fuerza gravedad)
         
         //- Fondo
         texturaFondo = new Texture(Gdx.files.internal("fondo_160x90.jpg"));
         
         //- Bola
-        textureBola = new Texture(Gdx.files.internal("ball_50x50.png"));
-        spriteBola = new Sprite(textureBola);
+        texturaBola = new Texture(Gdx.files.internal("ball_50x50.png"));  // radio 25
+        spriteBola = new Sprite(texturaBola);
+        bodyBola = Utiles.crearCuerpoCircular(world, BodyDef.BodyType.DynamicBody, game.WORLD_WIDTH/2, game.WORLD_HEIGHT/2, texturaBola.getHeight()/2, 1f, 0.5f);
         
-        bodyBola = Utiles.crearCuerpoCircular(world, BodyDef.BodyType.DynamicBody, game.WORLD_WIDTH/2, game.WORLD_HEIGHT/2, 10f, 1f, 0.5f);
-        
-        //Bola Fija
-        //bodyBolaFija = Utiles.crearCuerpoCircular(world, BodyDef.BodyType.StaticBody, game.WORLD_WIDTH/2, game.WORLD_HEIGHT/2-20, 10f, 1f, 0.5f);
-        
-        //Rect fijo
-        bodyRectFijo = Utiles.crearCuerpoRectangular(world, BodyDef.BodyType.StaticBody, game.WORLD_WIDTH/2, -10, game.WORLD_WIDTH/2, 10f, 1f, 0.5f);
-        
-
         //- Tablero
-        texturaMarcoHor = Utiles.crearTextura((int)(160*game.METROS_TO_PIXEL)/2, (int)(4*game.METROS_TO_PIXEL) , Color.GREEN);
-        //texturaMarcoVert = Utiles.crearTextura(25, (int)(90*game.METROS_TO_PIXEL), Color.RED);
- 
-        //bodyMarcoSup = Utiles.crearCuerpo(world, BodyDef.BodyType.StaticBody, 0, Gdx.graphics.getHeight()-texturaMarcoHor.getHeight());
-        bodyMarcoInf = Utiles.crearCuerpoRectangular(world, BodyDef.BodyType.StaticBody, 0, -40, game.WORLD_WIDTH, 10, 1000f, 100f);  
-
-        //marcosArray.add(bodyMarcoSup);
+        texturaMarcoHor = Utiles.crearTextura((int)(1024*game.METROS_TO_PIXEL), (int)(50*game.METROS_TO_PIXEL), Color.GREEN);
+        bodyMarcoInf = Utiles.crearCuerpoRectangular(world, BodyDef.BodyType.StaticBody, game.WORLD_WIDTH/2, texturaMarcoHor.getHeight()/2, game.WORLD_WIDTH, texturaMarcoHor.getHeight(), 1000f, 100f);  
         marcosArray.add(bodyMarcoInf);
 
-        
         //- Jugadores
         
         //---- Color de relleno render
@@ -104,7 +109,8 @@ public class GameScreen implements Screen {
 
 	public void update(){
 		//---- Actualizar bola
-        spriteBola.setPosition(bodyBola.getPosition().x*game.METROS_TO_PIXEL - spriteBola.getWidth()/2, bodyBola.getPosition().y*game.METROS_TO_PIXEL - spriteBola.getHeight()/2);
+        //spriteBola.setPosition(bodyBola.getPosition().x*game.METROS_TO_PIXEL - spriteBola.getWidth()/2, bodyBola.getPosition().y*game.METROS_TO_PIXEL - spriteBola.getHeight()/2);
+		spriteBola.setPosition(posicionCuerpoToTextura(bodyBola)[0], posicionCuerpoToTextura(bodyBola)[1]);
         
         //---- Actualizar los jugadores
 	}
@@ -127,7 +133,8 @@ public class GameScreen implements Screen {
         game.batch.draw(spriteBola, spriteBola.getX(), spriteBola.getY());
         
         for(Body cuadradoMarco : marcosArray){
-        	game.batch.draw(texturaMarcoHor, cuadradoMarco.getPosition().x, cuadradoMarco.getPosition().y);
+        	//game.batch.draw(texturaMarcoHor, cuadradoMarco.getPosition().x-1024/2, cuadradoMarco.getPosition().y-25);
+        	game.batch.draw(texturaMarcoHor, posicionCuerpoToTextura(cuadradoMarco)[0], posicionCuerpoToTextura(cuadradoMarco)[1]);
         }
         
         game.batch.end();
@@ -162,7 +169,7 @@ public class GameScreen implements Screen {
 	public void dispose() {
 		texturaFondo.dispose();
 		
-		textureBola.dispose();
+		texturaBola.dispose();
 		
 		texturaMarcoHor.dispose();
 		texturaMarcoVert.dispose();

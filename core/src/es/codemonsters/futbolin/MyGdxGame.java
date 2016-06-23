@@ -11,9 +11,9 @@ public class MyGdxGame extends Game {
 	
 	public static final String TITLE = "Futbolin";
 	
-	public final float WORLD_WIDTH = 160f;
-	public final float WORLD_HEIGHT = 90f;
-	public final float METROS_TO_PIXEL = 6.4f;// Relacion entre el numero de pixeles que representa cada metro (world units --> screen units)
+	public final float WORLD_WIDTH = 1024f;
+	public final float WORLD_HEIGHT = 576f;
+	public final float METROS_TO_PIXEL = 1f;// Relacion entre el numero de pixeles que representa cada metro (world units --> screen units)
 	
 	public void create() {
         batch = new SpriteBatch();
