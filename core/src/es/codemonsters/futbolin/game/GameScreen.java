@@ -19,6 +19,8 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.viewport.FillViewport;
+import com.badlogic.gdx.utils.viewport.ScreenViewport;
+
 import es.codemonsters.futbolin.Utiles;
 
 
@@ -27,7 +29,7 @@ import es.codemonsters.futbolin.MyGdxGame;
 public class GameScreen implements Screen {
 	//---- Camara y visualizacion
 	private OrthographicCamera camera;
-	private FillViewport viewport;
+	private ScreenViewport viewport;
 	
 	//---- Mundo y elementos
 	private MyGdxGame game;
@@ -46,28 +48,43 @@ public class GameScreen implements Screen {
 	private Array<Body> marcosArray = new Array<Body>();
 	
 	
-	public float[] posicionCuerpoToTextura(Body cuerpo) {
-		float[] posicionesTexturas = new float[2];
+	// Devuelve la posicion de la textura segun la posicion del cuerpo
+	public Vector2 posicionCuerpoToSprite(Body cuerpo) {
+		Vector2 posicionTextura = new Vector2();
 		
 		if(cuerpo.getFixtureList().get(0).getShape() instanceof CircleShape){
-			posicionesTexturas[0] = cuerpo.getPosition().x - cuerpo.getFixtureList().get(0).getShape().getRadius();
-			posicionesTexturas[1] = cuerpo.getPosition().y - cuerpo.getFixtureList().get(0).getShape().getRadius();
+			posicionTextura.x = (cuerpo.getPosition().x - cuerpo.getFixtureList().get(0).getShape().getRadius())*game.METROS_TO_PIXEL;
+			posicionTextura.y = (cuerpo.getPosition().y - cuerpo.getFixtureList().get(0).getShape().getRadius())*game.METROS_TO_PIXEL;
+			
 		}
 		
 		else if(cuerpo.getFixtureList().get(0).getShape() instanceof PolygonShape){
 			PolygonShape poligono = (PolygonShape) cuerpo.getFixtureList().get(0).getShape();
-
-			// SEGUIR AQUI!!!!!!!!!!!!!
-			posicionesTexturas[0] = cuerpo.getPosition().x - cuerpo.getFixtureList().get(0).getShape().getRadius();
-			posicionesTexturas[1] = cuerpo.getPosition().y - cuerpo.getFixtureList().get(0).getShape().getRadius();
+			
+			Vector2 tmp = new Vector2();
+			for(int i=0 ; i<poligono.getVertexCount() ; i++){
+				poligono.getVertex(i, tmp);
+				
+				if(posicionTextura.x > tmp.x)
+					posicionTextura.x = tmp.x + cuerpo.getPosition().x;
+				if(posicionTextura.y > tmp.y)
+					posicionTextura.y = tmp.y + cuerpo.getPosition().y;
+			}
 		}
 		
 		else{
-			
+			// Añadir excepcion
 		}
+			
+		return posicionTextura;
+	}
+	
+	public Vector2 posicionSpriteToCuerpo(Sprite sprite) {
+		Vector2 posicionCuerpo = new Vector2();
+		posicionCuerpo.x = sprite.getX() + sprite.getWidth()/2;
+		posicionCuerpo.y = sprite.getY() + sprite.getHeight()/2;
+		return posicionCuerpo;
 		
-		
-		return posicionesTexturas;
 	}
 	
 	public GameScreen(final MyGdxGame game) {
@@ -75,7 +92,8 @@ public class GameScreen implements Screen {
         
         //---- Camara y visualizacion
         camera = new OrthographicCamera(); // Camara ortogonal
-        viewport = new FillViewport(1024, 576, camera);  // Vision rectangular de un area de la pantalla, en este caso ocupa toda ella
+        //viewport = new FillViewport(1024, 576, camera);  // Vision rectangular de un area de la pantalla, en este caso ocupa toda ella
+        viewport = new ScreenViewport(camera);
         viewport.apply();  // Aplica el viewport a la camara
         camera.position.set(camera.viewportWidth/2,camera.viewportHeight/2,0);  // Colocamos la camara en el medio del viewport (centro de la pantalla)
         
@@ -88,12 +106,16 @@ public class GameScreen implements Screen {
         //- Bola
         texturaBola = new Texture(Gdx.files.internal("ball_50x50.png"));  // radio 25
         spriteBola = new Sprite(texturaBola);
-        bodyBola = Utiles.crearCuerpoCircular(world, BodyDef.BodyType.DynamicBody, game.WORLD_WIDTH/2, game.WORLD_HEIGHT/2, texturaBola.getHeight()/2, 1f, 0.5f);
+        bodyBola = Utiles.crearCuerpoCircular(world, BodyDef.BodyType.DynamicBody, game.WORLD_WIDTH/2, game.WORLD_HEIGHT/2, 0.50f, 0.5f, 1f);
         
         //- Tablero
         texturaMarcoHor = Utiles.crearTextura((int)(1024*game.METROS_TO_PIXEL), (int)(50*game.METROS_TO_PIXEL), Color.GREEN);
+        
         bodyMarcoInf = Utiles.crearCuerpoRectangular(world, BodyDef.BodyType.StaticBody, game.WORLD_WIDTH/2, texturaMarcoHor.getHeight()/2, game.WORLD_WIDTH, texturaMarcoHor.getHeight(), 1000f, 100f);  
         marcosArray.add(bodyMarcoInf);
+        bodyMarcoSup = Utiles.crearCuerpoRectangular(world, BodyDef.BodyType.StaticBody, game.WORLD_WIDTH/2, game.WORLD_WIDTH-texturaMarcoHor.getHeight()/2, game.WORLD_WIDTH, texturaMarcoHor.getHeight(), 1000f, 100f);  
+        marcosArray.add(bodyMarcoSup);
+        
 
         //- Jugadores
         
@@ -110,7 +132,8 @@ public class GameScreen implements Screen {
 	public void update(){
 		//---- Actualizar bola
         //spriteBola.setPosition(bodyBola.getPosition().x*game.METROS_TO_PIXEL - spriteBola.getWidth()/2, bodyBola.getPosition().y*game.METROS_TO_PIXEL - spriteBola.getHeight()/2);
-		spriteBola.setPosition(posicionCuerpoToTextura(bodyBola)[0], posicionCuerpoToTextura(bodyBola)[1]);
+		spriteBola.setPosition(posicionCuerpoToSprite(bodyBola).x, posicionCuerpoToSprite(bodyBola).y);
+		System.out.println(posicionCuerpoToSprite(bodyBola).x + " ; " +  posicionCuerpoToSprite(bodyBola).y);
         
         //---- Actualizar los jugadores
 	}
@@ -133,17 +156,17 @@ public class GameScreen implements Screen {
         game.batch.draw(spriteBola, spriteBola.getX(), spriteBola.getY());
         
         for(Body cuadradoMarco : marcosArray){
-        	//game.batch.draw(texturaMarcoHor, cuadradoMarco.getPosition().x-1024/2, cuadradoMarco.getPosition().y-25);
-        	game.batch.draw(texturaMarcoHor, posicionCuerpoToTextura(cuadradoMarco)[0], posicionCuerpoToTextura(cuadradoMarco)[1]);
+        	game.batch.draw(texturaMarcoHor, posicionCuerpoToSprite(cuadradoMarco).x, posicionCuerpoToSprite(cuadradoMarco).y);
         }
-        
+        game.batch.draw(texturaBola, 0, 0);
         game.batch.end();
 		
 	}
 
 	@Override
 	public void resize(int width, int height) {
-		// TODO Auto-generated method stub
+		viewport.update(width,height);
+	    camera.position.set(camera.viewportWidth/2,camera.viewportHeight/2,0);
 		
 	}
 
